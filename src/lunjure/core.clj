@@ -9,7 +9,8 @@
         compojure.core
         lunjure.view
         lunjure.api)
-  (:require [swank.swank :as swank]))
+  (:require [swank.swank :as swank]
+            [lunjure.demo :as demo]))
 
 (defn wrap-auth [handler]
   (fn [req]
@@ -38,5 +39,6 @@
     (println "Lunjure listening on port" port)))
 
 (defn -main []
+  (demo/init)
   (start-aleph)
   (swank/start-server :host "localhost" :port 4005))
