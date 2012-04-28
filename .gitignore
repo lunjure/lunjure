@@ -8,3 +8,5 @@
 /.lein-deps-sum
 /.lein-plugins
 /target
+/resources/public/lunjure.js
+/.lein-cljsbuild*
