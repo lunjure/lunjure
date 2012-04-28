@@ -46,11 +46,11 @@
 
 ;;; Completion Stuff
 
-(defn on-input-change [event]
-  (let [el (.-currentTarget event)
-        text (.-value el)]
-    (if (not= 0 (.indexOf text "(defteam"))
-      (logging/log "Parsing command..." text))))
+;; (defn on-input-change [event]
+;;   (let [el (.-currentTarget event)
+;;         text (.-value el)]
+;;     (if (not= 0 (.indexOf text "(defteam"))
+;;       (logging/log "Parsing command..." text))))
 
 (defn autocomplete-search-event [event ui]
   (let [el (.-currentTarget event)
