@@ -60,3 +60,8 @@
   (.. (jquery "<p>")
       (attr "class" "status")
       (text (str (:user obj) " ist dem Team " (:team obj) " beigetreten."))))
+
+(defmethod make-message-element :enter [obj]
+  (.. (jquery "<p>")
+      (attr "class" "status")
+      (text (str (:user obj) " has entered the Group."))))
