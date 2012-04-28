@@ -17,7 +17,7 @@
     (let [user (-> req :session :user)]
       (if (or user (= "/login" (-> req :uri)))
         (handler (assoc req :user user))
-        (redirect "/login")))))<
+        (redirect "/login")))))
 
 (def app
   (-> (routes
