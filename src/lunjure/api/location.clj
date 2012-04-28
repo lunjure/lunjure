@@ -14,7 +14,11 @@
             dummy-locations)))
 
 (defn display-name [location]
-  (apply str (interpose ", " (map location [:name :address :city]))))
+  (let [{:keys [name]} location
+        {:keys [address city]} (:location location)]
+    (->> (filter identity [name address city])
+         (interpose ", ")
+         (apply str))))
 
 (defroutes location-routes
   (GET "/groups/:group-id/locations" [group-id :as req]
