@@ -14,9 +14,10 @@
     text))
 
 (defn parse-input [text]
-  (let [obj (try
-              (reader/read-string (sanitize-input text))
-              (catch Error e nil))]
+  (let [obj (when (= 0(.indexOf text "("))
+              (try
+                (reader/read-string (sanitize-input text))
+                (catch Error e nil)))]
     (if (or (nil? obj) (not (seq? obj)))
       {:type :message
        :text text}
