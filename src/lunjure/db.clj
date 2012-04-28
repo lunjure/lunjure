@@ -23,15 +23,15 @@
 (defn- team-members-key [team-id] (str TEAMS_NS ".members/" team-id))
 (defn- user-key [id] (str USERS_NS "/" id))
 
-(defn create-user!
-  "Creates the user with the given name. Dummy until we have
-   implemented authentication via Foursquare."
-  [user-name]
-  (if-let [added? (= 1 (redis/sadd db USERS_KEY user-name))]
-    (let [id (util/new-uuid)]
-      (redis/set db (user-key id) user-name)
-      {:id id :name user-name})
-    {:error (str "User with name " user-name " already exists.")}))
+(defn store-foursquare-user!
+  "Stores the specified Foursquare user so that it can be retrieved
+   by its Foursquare user id."
+  [user]
+  (if-let [added? (= 1 (redis/sadd db USERS_KEY (:id user)))]
+    (do
+      (redis/set db (user-key (:id user)) (pr-str user))
+      user)
+    {:error (str "User with id " (:id user) " already exists.")}))
 
 (defn create-group!
   "Creates a group with the given name."
