@@ -14,7 +14,7 @@
                                                  :longitude (.-longitude c)
                                                  :accuracy  (.-accuracy  c)})))
                            (fn error [pos]
-                             (logging/log "Failed to update geolocation."))
+                             (.log js/console "Failed to update geolocation."))
                            (js* "{maximumAge:600000}"))))
 
 (event/listen (dom/get-element "message")
