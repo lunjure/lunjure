@@ -2,8 +2,9 @@
   (:require [cljs.reader :as reader]
             [lunjure.logging :as logging]
             [clojure.browser.dom :as dom]
-            [clojure.browser.event :as event]
-            [goog.ui.AutoComplete.Remote :as Remote]))
+            [clojure.browser.event :as event]))
+
+(def jquery (js* "$"))
 
 (defmulti handle-command first)
 
@@ -35,7 +36,11 @@
     (if (not= 0 (.indexOf text "(defteam"))
       (logging/log "Parsing command..." text))))
 
-(let [el (dom/get-element :message)
-      ac (goog.ui.AutoComplete.Remote. "/locations" el)]
-  (event/listen el "keyup" on-input-change)
-  (.attachInputs ac el))
+;; (let [el (dom/get-element :message)
+;;       ac (goog.ui.AutoComplete.Remote. "/locations" el)]
+;;   (event/listen el "keyup" on-input-change)
+;;   (.attachInputs ac el))
+
+(jquery (fn []
+          (-> (jquery "#message")
+              (.autocomplete (js* "{source: \"/locations\"}")))))
