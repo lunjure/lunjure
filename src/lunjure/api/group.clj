@@ -19,21 +19,28 @@
 (def time-string-formatter
   (java.text.SimpleDateFormat. "HH:MM"))
 
-(defn enrich-message [user msg]
-  (let [time (now)]
-    (-> (if (map? msg) msg (read-string msg))
-        (assoc :user user
-               :time time
-               :time-string
-               (->> (java.util.Date. time)
-                    (.format time-string-formatter))))))
+(defn enrich-message
+  ([user msg]
+     (enrich-message (-> (read-string msg)
+                         (assoc :user user))))
+  ([msg]
+     (let [time (now)]
+       (-> (if (map? msg) msg )
+           (assoc :time time
+                  :time-string
+                  (->> (java.util.Date. time)
+                       (.format time-string-formatter)))
+           (pr-str)))))
+
+(defn send-message [channel message]
+  (enqueue channel (enrich-message message)))
 
 (defn user-group-chat-handler [group-channel group-id user]
   (fn [user-channel handshake]
     (siphon group-channel user-channel)
+    (send-message group-channel {:type :enter :user user})
     (let [user-channel (map* (partial enrich-message user) user-channel)]
-      (-> (map* pr-str user-channel)
-          (siphon group-channel))
+      (siphon user-channel group-channel)
       (-> (fork user-channel)
           (receive-in-order (partial db/add-message! group-id))))))
 
