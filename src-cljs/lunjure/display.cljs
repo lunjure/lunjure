@@ -5,6 +5,8 @@
 
 (def jquery (js* "$"))
 
+(def output (jquery "#text_window .output"))
+
 ;;; TODO
 ;; (defn format-time-string [time]
 ;;   (.log js/console time)
@@ -20,7 +22,8 @@
 
 (defn append-element [el]
   (dom/append (gdom/getFirstElementChild (dom/get-element "text_window"))
-              el))
+              el)
+  (.scrollTop output (.-scrollHeight (.get output 0))))
 
 (defmulti make-message-element :type)
 
