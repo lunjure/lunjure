@@ -8,9 +8,11 @@
               "keydown"
               (fn [ev]
                 (when (== 13 (.-keyCode ev))
-                  (let [text (.-value (dom/get-element "message"))
+                  (let [el (dom/get-element "message")
+                        text (dom/get-value el)
                         msg (input/parse-input text)]
-                    (socket/send-data msg)))))
+                    (socket/send-data msg)
+                    (dom/set-value el "")))))
 
 (let [location (.-location js/window)]
   (socket/open-socket (str "ws://"
