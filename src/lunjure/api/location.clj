@@ -16,7 +16,7 @@
 (defroutes location-routes
   (GET "/locations" req
        (-> (if-let [term (-> req :params :term)]
-             (map :name (locations/find-locations-by-prefix token))
+             (map :name (locations/find-locations-by-prefix term))
              [])
            (sort)
            (json-response))))
