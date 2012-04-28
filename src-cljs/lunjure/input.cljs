@@ -20,11 +20,30 @@
 (defmethod handle-command :default [[command & _] _]
   (logging/log "Got unknown command: " command))
 
-(defmethod handle-command "defteam" [[_ name time alias] text]
+(defmethod handle-command "team" [[_ team time alias] text]
   {:type :defteam
-   :name name
-   :time time
+   :name  team
+   :time  time
    :alias alias
+   :text  text})
+
+(defmethod handle-command "join" [[_ team]]
+  {:type :join
+   :team team
+   :text text})
+
+(defmethod handle-command "leave" [_]
+  {:type :leave
+   :text text})
+
+(defmethod handle-command "time" [[_ time]]
+  {:type :time
+   :time time
+   :text text})
+
+(defmethod handle-command "invite" [[_ name]]
+  {:type :invite
+   :name name
    :text text})
 
 (defn clj->js
