@@ -17,6 +17,8 @@
 (defn- group-members-key [id] (str GROUPS_NS ".members/" id))
 (defn- group-location-key [id] (str GROUPS_NS ".location/" id))
 (defn- group-venues-key [id] (str GROUPS_NS ".venues/" id))
+(defn- team-key [group-id team-id] (str GROUPS_NS "." group-id ".teams/" team-id))
+(defn- teams-key [group-id] (str GROUPS_NS ".teams/" group-id))
 
 (defn- user-key [id] (str USERS_NS "/" id))
 
@@ -94,3 +96,30 @@
   "Updates the cache of venues for the specified group."
   [group-id venues]
   (redis/setex db (group-venues-key group-id) (util/days 1) (pr-str venues)))
+
+(defn create-team!
+  "Creates a new team that belongs to the specified group."
+  [group-id team]
+  (let [team-id (util/new-uuid)]
+    (redis/sadd db (teams-key group-id) team-id)
+    (redis/set db (team-key group-id team-id) (pr-str team))
+    (assoc team :id team-id)))
+
+(defn get-teams
+  "Returns all teams of the given group."
+  [group-id]
+  (let [team-ids (redis/smembers db (teams-key group-id))]
+    (map read-string (apply redis/mget db (map (partial team-key group-id) team-ids)))))
+
+(defn add-to-team!
+  "Adds the user with the specified id to the given team."
+  [team-id user-id])
+
+(defn remove-from-team!
+  "Removes the specified user from the team with the given id."
+  [team-id user-id]
+  )
+
+(defn get-team-members
+  "Returns a list of all user ids of all members of the given team."
+  [team-id])
