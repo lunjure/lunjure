@@ -8,6 +8,7 @@
                  [lein-swank "1.4.4"]
                  [compojure "1.0.2"]
                  [commons-codec "1.5" :exclusions [commons-logging]] ;Base64
+                 [lamina "0.4.1-beta2"]
                  ]
   :main lunjure.core
   :plugins [[lein-cljsbuild "0.1.8"]]
