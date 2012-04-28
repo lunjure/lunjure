@@ -28,6 +28,22 @@
    :alias alias
    :text text})
 
+(defn clj->js
+  "Recursively transforms ClojureScript maps into Javascript objects,
+   other ClojureScript colls into JavaScript arrays, and ClojureScript
+   keywords into JavaScript strings.
+
+   Borrowed and updated from mmcgrana."
+  [x]
+  (cond
+    (string? x) x
+    (keyword? x) (name x)
+    (map? x) (.-strobj (reduce (fn [m [k v]]
+               (assoc m (clj->js k) (clj->js v))) {} x))
+    (coll? x) (apply array (map clj->js x))
+    :else x))
+
+
 ;;; Completion Stuff
 
 (defn on-input-change [event]
@@ -36,11 +52,13 @@
     (if (not= 0 (.indexOf text "(defteam"))
       (logging/log "Parsing command..." text))))
 
-;; (let [el (dom/get-element :message)
-;;       ac (goog.ui.AutoComplete.Remote. "/locations" el)]
-;;   (event/listen el "keyup" on-input-change)
-;;   (.attachInputs ac el))
+(defn autocomplete-search-event [event ui]
+  (let [el (.-currentTarget event)
+        text (.-value el)]
+    (when-let [[_ cmd arg] (re-find #"^\(([^ ]+) (.+)" text)]
+      (logging/log "cmd: " cmd))))
 
 (jquery (fn []
           (-> (jquery "#message")
-              (.autocomplete (js* "{source: \"/locations\"}")))))
+              (.autocomplete (clj->js {:source "/locations"
+                                       :search autocomplete-search-event})))))
