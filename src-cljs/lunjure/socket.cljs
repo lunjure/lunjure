@@ -1,4 +1,7 @@
-(ns lunjure.socket)
+(ns lunjure.socket
+  (:require [cljs.reader :as reader]
+            ;; TODO: move to core
+            [lunjure.display :as display]))
 
 (def *socket* nil)
 
@@ -12,7 +15,10 @@
 (defn handle-socket-message [socket-event]
   (let [obj (reader/read-string (.-data socket-event))]
     (assert (map? obj))
-    (assert (keyword? (:type obj)))))
+    (assert (keyword? (:type obj)))
+    (let [el (display/make-message-element obj)]
+      (.log js/console el)
+     (display/append-element el))))
 
 (defn ^:export open-socket [uri]
   (let [ws (if (.-MozWebSocket js/window) (js/MozWebSocket. uri) (js/WebSocket. uri))]

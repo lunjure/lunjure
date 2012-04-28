@@ -10,6 +10,7 @@
                  [compojure "1.0.2"]
                  [clj-foursquare "0.1-SNAPSHOT"]
                  [commons-codec "1.5" :exclusions [commons-logging]] ;Base64
+                 [lamina "0.4.1-beta2"]
                  ]
   :main lunjure.core
   :plugins [[lein-cljsbuild "0.1.8"]]
