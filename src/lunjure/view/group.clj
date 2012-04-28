@@ -4,5 +4,5 @@
         lunjure_hiccster.content.lunjure))
 
 (defroutes group-routes
-  (GET "/group/:id" [id]
+  (GET "/groups/:id" [id]
        (html-response (page false))))
