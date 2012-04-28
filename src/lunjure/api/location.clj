@@ -14,9 +14,9 @@
             dummy-locations)))
 
 (defroutes location-routes
-  (GET "/locations" req
+  (GET "/groups/:group-id/locations" [group-id :as req]
        (-> (if-let [term (-> req :params :term)]
-             (map :name (locations/find-locations-by-prefix term))
+             (map :name (locations/find-locations-by-prefix group-id term))
              [])
            (sort)
            (json-response))))
