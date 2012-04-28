@@ -7,10 +7,12 @@
                  [ring/ring-core "1.1.0"]
                  [lein-swank "1.4.4"]
                  [compojure "1.0.2"]
+                 [clj-foursquare "0.1-SNAPSHOT"]
                  [commons-codec "1.5" :exclusions [commons-logging]] ;Base64
                  ]
   :main lunjure.core
   :plugins [[lein-cljsbuild "0.1.8"]]
+  :repositories {"local" ~(str (.toURI (java.io.File. "maven-repo")))}
   :cljsbuild {:crossovers []
               :builds [{:source-path "src-cljs/"
                         :compiler
