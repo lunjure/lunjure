@@ -52,13 +52,30 @@
 ;;     (if (not= 0 (.indexOf text "(defteam"))
 ;;       (logging/log "Parsing command..." text))))
 
-(defn autocomplete-search-event [event ui]
+(defn simple-parse-command [text]
+  (when-let [[_ cmd location] (re-find #"^\(([^ ]+) ([^ ]+)" text)]
+    [cmd location]))
+
+(defn autocomplete-should-complete [event ui]
   (let [el (.-currentTarget event)
         text (.-value el)]
-    (when-let [[_ cmd arg] (re-find #"^\(([^ ]+) (.+)" text)]
-      (logging/log "cmd: " cmd))))
+    (when-let [[cmd location] (simple-parse-command text)]
+      (logging/log "asdf" location)
+      (boolean location))))
+
+(defn data-provider [request response]
+  (let [term (.-term request)
+        [cmd location] (simple-parse-command term)]
+    (when location
+     (-> jquery
+         (.getJSON (str "/locations?term=" location)
+                   nil
+                   (fn [data status xhr]
+                     (logging/log "cmd: " data)
+                     (response (apply array (map #(str "(" cmd " " %) data))))))) ))
 
 (jquery (fn []
           (-> (jquery "#message")
-              (.autocomplete (clj->js {:source "/locations"
-                                       :search autocomplete-search-event})))))
+              (.autocomplete (clj->js {:source data-provider
+                                       ;; :search autocomplete-should-complete
+                                       })))))
