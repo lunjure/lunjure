@@ -24,6 +24,7 @@
 (defn user-group-chat-handler [group-channel group-id user]
   (fn [user-channel handshake]
     (siphon group-channel user-channel)
+    (enqueue group-channel (enrich-message user {:type :enter}))
     (let [user-channel (map* (partial enrich-message user) user-channel)]
       (-> (map* pr-str user-channel)
           (siphon group-channel))
