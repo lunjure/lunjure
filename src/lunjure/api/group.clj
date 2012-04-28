@@ -30,21 +30,31 @@
                :time time
                :time-string
                (->> (java.util.Date. time)
-                    (.format time-string-formatter)))
-        (pr-str))))
+                    (.format time-string-formatter))))))
 
-(defn send-message [channel user message]
-  (enqueue channel (enrich-message user message)))
+(defn broadcast-message [group-channel group-id user message]
+  (let [message (enrich-message user message)]
+    (enqueue group-channel (pr-str message))
+    (db/add-message! group-id message)))
+
+(defn send-history [channel group-id]
+  (let [threshold (- (now) (* 1000 (hours 12)))]
+    (doseq [message (->> (db/get-messages group-id 30)
+                         (filter (fn [m] (and (:time m) (> (:time m) threshold))))
+                         (reverse)
+                         (map pr-str))]
+      (enqueue channel message))))
 
 (defn user-group-chat-handler [group-channel group-id user]
   (fn [user-channel handshake]
     (siphon group-channel user-channel)
-    (on-closed user-channel (partial send-message group-channel user {:type :exit}))
-    (send-message group-channel user {:type :enter})
+    (on-closed user-channel (partial broadcast-message group-channel group-id user {:type :exit}))
+    (send-history user-channel group-id)
+    (broadcast-message group-channel group-id user {:type :enter})
     (let [user-channel (map* (partial enrich-message user) user-channel)]
-      (siphon user-channel group-channel)
       (-> (fork user-channel)
-          (receive-in-order (partial db/add-message! group-id))))))
+          (receive-in-order (partial db/add-message! group-id)))
+      (siphon (map* pr-str user-channel) group-channel))))
 
 (defroutes group-routes
   (GET "/groups/:id/socket" [id :as req]
