@@ -3,11 +3,15 @@
         ring.util.response
         ring.middleware.file
         ring.middleware.file-info
-        lunjure.view)
+        compojure.core
+        lunjure.view
+        lunjure.api)
   (:require [swank.swank :as swank]))
 
 (def app
-  (-> (var view-routes)
+  (-> (routes
+       (var api-routes)
+       (var view-routes))
       (wrap-file "design/static")
       (wrap-file "resources/public")
       (wrap-file-info)))
