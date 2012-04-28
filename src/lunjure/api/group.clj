@@ -16,15 +16,21 @@
            (or ch (permanent-channel))))
   (get @group-channels group))
 
+(def time-string-formatter
+  (java.text.SimpleDateFormat. "HH:MM"))
+
 (defn enrich-message [user msg]
-  (-> (read-string msg)
-      (assoc :user user
-             :time (now))))
+  (let [time (now)]
+    (-> (if (map? msg) msg (read-string msg))
+        (assoc :user user
+               :time time
+               :time-string
+               (->> (java.util.Date. time)
+                    (.format time-string-formatter))))))
 
 (defn user-group-chat-handler [group-channel group-id user]
   (fn [user-channel handshake]
     (siphon group-channel user-channel)
-    (enqueue group-channel (enrich-message user {:type :enter}))
     (let [user-channel (map* (partial enrich-message user) user-channel)]
       (-> (map* pr-str user-channel)
           (siphon group-channel))
