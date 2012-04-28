@@ -1,10 +1,6 @@
 (ns lunjure.api
   (:use lunjure.api.location
-        compojure.core
-        ring.middleware.params
-        ring.middleware.keyword-params))
+        compojure.core))
 
 (def api-routes
-  (-> (var location-routes)
-      (wrap-keyword-params)
-      (wrap-params)))
+  (routes (var location-routes)))
