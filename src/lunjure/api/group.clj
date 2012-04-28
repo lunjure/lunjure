@@ -16,12 +16,16 @@
            (or ch (permanent-channel))))
   (get @group-channels group))
 
+(defn read-cljs-string [str]
+  (-> (.replaceAll str "\\\\x" "\\\\u00")
+      (read-string)))
+
 (def time-string-formatter
   (java.text.SimpleDateFormat. "HH:mm"))
 
 (defn enrich-message [user msg]
   (let [time (now)]
-    (-> (if (map? msg) msg (read-string msg))
+    (-> (if (map? msg) msg (read-cljs-string msg))
         (assoc :user user
                :time time
                :time-string
