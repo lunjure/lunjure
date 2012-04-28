@@ -50,7 +50,7 @@
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " hat die Uhrzeit auf "
                  ;; TODO: :lunch-time instead of :time-string
-                 (format-time-string (:time-string obj)) " gesetzt."))))
+                 (format-time-string (:lunch-time obj)) " gesetzt."))))
 
 (defmethod make-message-element :leave [obj]
   ;; TODO: Aus Liste entfernen
