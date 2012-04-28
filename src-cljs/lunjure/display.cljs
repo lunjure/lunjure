@@ -36,6 +36,7 @@
   ;; TODO: Team zur Liste hinzufuegen
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " das Team " (:name obj) " erstellt."))))
 
 ;; (defmethod make-message-element :invite [obj]
@@ -46,6 +47,7 @@
   ;; TODO: Zeit aktualisieren
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " hat die Uhrzeit auf "
                  ;; TODO: :lunch-time instead of :time-string
                  (format-time-string (:time-string obj)) " gesetzt."))))
@@ -54,20 +56,24 @@
   ;; TODO: Aus Liste entfernen
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " hat das Team " (:team obj) " verlassen."))))
 
 (defmethod make-message-element :join [obj]
   ;; TODO: Zur Liste hinzufuegen
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " ist dem Team " (:team obj) " beigetreten."))))
 
 (defmethod make-message-element :enter [obj]
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has entered the Group."))))
 
 (defmethod make-message-element :geolocation [obj]
   (.. (jquery "<p>")
       (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " changed the geolocation of this Group."))))
