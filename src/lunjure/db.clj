@@ -85,7 +85,8 @@
 (defn set-group-location!
   "Sets the current geo-location of the specified group."
   [group-id location]
-  (redis/set db (group-location-key group-id) (pr-str location)))
+  (redis/set db (group-location-key group-id) (pr-str location))
+  (redis/del db (group-venues-key group-id)))
 
 (defn get-venues-for-group
   "Returns all venues cached for the specified group."
