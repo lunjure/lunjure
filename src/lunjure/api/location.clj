@@ -14,8 +14,8 @@
 
 (defroutes location-routes
   (GET "/locations" req
-       (-> (if-let [like (-> req :params :like)]
-             (find-locations-like like)
+       (-> (if-let [token (-> req :params :token)]
+             (find-locations-like token)
              dummy-locations)
            (sort)
            (json-response))))
