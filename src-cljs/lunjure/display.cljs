@@ -37,7 +37,7 @@
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " das Team " (:name obj) " erstellt."))))
+      (text (str (:user obj) " has created team " (:name obj) "."))))
 
 ;; (defmethod make-message-element :invite [obj]
 ;;   (dom/element :p {"class" "status"}
@@ -48,32 +48,33 @@
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " hat die Uhrzeit auf "
-                 ;; TODO: :lunch-time instead of :time-string
-                 (format-time-string (:lunch-time obj)) " gesetzt."))))
+      (text (str (:user obj) " has set lunch time to "
+                 ;; TODO: mention team
+                 (format-time-string (:lunch-time obj))
+                 "."))))
 
 (defmethod make-message-element :leave [obj]
   ;; TODO: Aus Liste entfernen
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " hat das Team " (:team obj) " verlassen."))))
+      (text (str (:user obj) " has left team " (:team obj) "."))))
 
 (defmethod make-message-element :join [obj]
   ;; TODO: Zur Liste hinzufuegen
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " ist dem Team " (:team obj) " beigetreten."))))
+      (text (str (:user obj) " has joined team " (:team obj) "."))))
 
 (defmethod make-message-element :enter [obj]
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " has entered the Group."))))
+      (text (str (:user obj) " has entered."))))
 
 (defmethod make-message-element :geolocation [obj]
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " changed the geolocation of this Group."))))
+      (text (str (:user obj) " has changed the group's geolocation."))))
