@@ -14,6 +14,9 @@
        :text text}
       (handle-command (map str obj) text))))
 
+(defmethod handle-command :default [[command & _] _]
+  (logging/log "Got unknown command: " command))
+
 (defmethod handle-command "defteam" [[_ name time alias] text]
   {:type :defteam
    :name name
