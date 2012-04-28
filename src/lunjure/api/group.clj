@@ -1,7 +1,9 @@
 (ns lunjure.api.group
-  (:use compojure.core
+  (:use lunjure.util
+        compojure.core
         lamina.core
-        aleph.http))
+        aleph.http)
+  (:require [lunjure.db :as db]))
 
 (defonce group-channels
   (atom {}))
@@ -14,19 +16,22 @@
            (or ch (permanent-channel))))
   (get @group-channels group))
 
-(defn add-user [msg user]
-  (pr-str (assoc (read-string msg) :user user)))
+(defn enrich-message [user msg]
+  (-> (read-string msg)
+      (assoc :user user
+             :time (now))))
 
-(defn user-group-chat-handler [group-channel user]
+(defn user-group-chat-handler [group-channel group-id user]
   (fn [user-channel handshake]
     (siphon group-channel user-channel)
-    (-> (map* (fn [m]
-                (add-user m user))
-              user-channel)
-        (siphon group-channel))))
+    (let [user-channel (map* (partial enrich-message user) user-channel)]
+      (-> (map* pr-str user-channel)
+          (siphon group-channel))
+      (-> (fork user-channel)
+          (receive-in-order (partial db/add-message! group-id))))))
 
 (defroutes group-routes
   (GET "/groups/:id/socket" [id :as req]
        (-> (get-group-channel id)
-           (user-group-chat-handler (-> req :session :user))
+           (user-group-chat-handler id (-> req :session :user))
            (wrap-aleph-handler))))
