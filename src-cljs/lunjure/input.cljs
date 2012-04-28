@@ -8,9 +8,14 @@
 
 (defmulti handle-command first)
 
+(defn sanitize-input [text]
+  (if-let [[[text pre h m post]] (re-seq #"(.*)(\d\d):(\d\d)(.*)" text)]
+    (str pre "\"" h ":" m "\"" post)
+    text))
+
 (defn parse-input [text]
   (let [obj (try
-              (reader/read-string text)
+              (reader/read-string (sanitize-input text))
               (catch Error e nil))]
     (if (or (nil? obj) (not (seq? obj)))
       {:type :message
@@ -38,7 +43,7 @@
 
 (defmethod handle-command "time" [[_ time] text]
   {:type :time
-   :time time
+   :lunch-time time
    :text text})
 
 (defmethod handle-command "invite" [[_ name] text]

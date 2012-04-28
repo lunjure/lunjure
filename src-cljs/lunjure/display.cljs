@@ -24,12 +24,17 @@
                (str (:user obj) " hat " (:name obj) " eingeladen.")))
 
 ;;; TODO
-(def parse-time identity)
+(defn format-time-string [time]
+  (.log js/console time)
+  (let [date (js/Date. (* time 1000))]
+    (str (.getHours date) ":" (.getMinutes date))))
 
 (defmethod make-message-element :time [obj]
   ;; TODO: Zeit aktualisieren
   (dom/element :p {"class" "status"}
-               (str (:user obj) " hat die Uhrzeit auf " (parse-time (:time obj)) " gesetzt.")))
+               (str (:user obj) " hat die Uhrzeit auf "
+                    ;; TODO: :lunch-time instead of :time
+                    (format-time-string (:time obj)) " gesetzt.")))
 
 (defmethod make-message-element :leave [obj]
   ;; TODO: Aus Liste entfernen
