@@ -1,6 +1,9 @@
 (ns lunjure.input
   (:require [cljs.reader :as reader]
-            [lunjure.logging :as logging]))
+            [lunjure.logging :as logging]
+            [clojure.browser.dom :as dom]
+            [clojure.browser.event :as event]
+            [goog.ui.AutoComplete.Remote :as Remote]))
 
 (defmulti handle-command first)
 
@@ -23,3 +26,11 @@
    :time time
    :alias alias
    :text text})
+
+;;; Completion Stuff
+
+(defn on-input-change [event]
+  (logging/log "change:" (-> event .-currentTarget .-value)))
+
+(let [el (dom/get-element :message)]
+  (event/listen el "keyup" on-input-change))
