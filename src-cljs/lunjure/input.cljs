@@ -12,7 +12,6 @@
   (let [obj (try
               (reader/read-string text)
               (catch Error e nil))]
-    (logging/log obj)
     (if (or (nil? obj) (not (seq? obj)))
       {:type :message
        :text text}
