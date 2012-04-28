@@ -8,17 +8,24 @@
 
 (defmulti handle-command first)
 
+(defn sanitize-input [text]
+  (if-let [[[text pre h m post]] (re-seq #"(.*)(\d\d):(\d\d)(.*)" text)]
+    (str pre "\"" h ":" m "\"" post)
+    text))
+
 (defn parse-input [text]
   (let [obj (try
-              (reader/read-string text)
+              (reader/read-string (sanitize-input text))
               (catch Error e nil))]
     (if (or (nil? obj) (not (seq? obj)))
       {:type :message
        :text text}
       (handle-command (map str obj) text))))
 
-(defmethod handle-command :default [[command & _] _]
-  (logging/log "Got unknown command: " command))
+(defmethod handle-command :default [[command & _] text]
+  (logging/log "Got unknown command: " command)
+  {:type :message
+   :text text})
 
 (defmethod handle-command "team" [[_ team time alias] text]
   {:type :team
@@ -38,13 +45,13 @@
 
 (defmethod handle-command "time" [[_ time] text]
   {:type :time
-   :time time
+   :lunch-time time
    :text text})
 
-(defmethod handle-command "invite" [[_ name] text]
-  {:type :invite
-   :name name
-   :text text})
+;; (defmethod handle-command "invite" [[_ name] text]
+;;   {:type :invite
+;;    :name name
+;;    :text text})
 
 (defn clj->js
   "Recursively transforms ClojureScript maps into Javascript objects,

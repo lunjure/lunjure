@@ -16,22 +16,32 @@
 
 (defmethod make-message-element :team [obj]
   ;; TODO: Team zur Liste hinzufuegen
-  (dom/element :p (str (:user obj) " das Team " (:name obj) " erstellt.")))
+  (dom/element :p {"class" "status"}
+               (str (:user obj) " das Team " (:name obj) " erstellt.")))
 
 (defmethod make-message-element :invite [obj]
-  (dom/element :p (str (:user obj) " hat " (:name obj) " eingeladen.")))
+  (dom/element :p {"class" "status"}
+               (str (:user obj) " hat " (:name obj) " eingeladen.")))
 
 ;;; TODO
-(def parse-time identity)
+(defn format-time-string [time]
+  (.log js/console time)
+  (let [date (js/Date. (* time 1000))]
+    (str (.getHours date) ":" (.getMinutes date))))
 
 (defmethod make-message-element :time [obj]
   ;; TODO: Zeit aktualisieren
-  (dom/element :p (str (:user obj) " hat die Uhrzeit auf " (parse-time (:time obj)) " gesetzt.")))
+  (dom/element :p {"class" "status"}
+               (str (:user obj) " hat die Uhrzeit auf "
+                    ;; TODO: :lunch-time instead of :time
+                    (format-time-string (:time obj)) " gesetzt.")))
 
 (defmethod make-message-element :leave [obj]
   ;; TODO: Aus Liste entfernen
-  (dom/element :p (str (:user obj) " hat das Team " (:team obj) " verlassen.")))
+  (dom/element :p {"class" "status"}
+               (str (:user obj) " hat das Team " (:team obj) " verlassen.")))
 
 (defmethod make-message-element :join [obj]
   ;; TODO: Zur Liste hinzufuegen
-  (dom/element :p (str (:user obj) " ist dem Team " (:team obj) " beigetreten.")))
+  (dom/element :p {"class" "status"}
+               (str (:user obj) " ist dem Team " (:team obj) " beigetreten.")))
