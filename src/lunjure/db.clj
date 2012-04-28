@@ -16,6 +16,7 @@
 (defn- group-invations-key [id] (str GROUPS_NS ".invitations/" id))
 (defn- group-members-key [id] (str GROUPS_NS ".members/" id))
 (defn- group-location-key [id] (str GROUPS_NS ".location/" id))
+(defn- group-venues-key [id] (str GROUPS_NS ".venues/" id))
 
 (defn- user-key [id] (str USERS_NS "/" id))
 
@@ -82,3 +83,14 @@
   "Sets the current geo-location of the specified group."
   [group-id location]
   (redis/set db (group-location-key group-id) (pr-str location)))
+
+(defn get-venues-for-group
+  "Returns all venues cached for the specified group."
+  [group-id]
+  (when-let [venues (redis/get db (group-venues-key group-id))]
+    (read-string venues)))
+
+(defn set-venues-for-group
+  "Updates the cache of venues for the specified group."
+  [group-id venues]
+  (redis/setex db (group-venues-key group-id) (util/days 1) (pr-str venues)))

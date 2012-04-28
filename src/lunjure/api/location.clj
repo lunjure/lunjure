@@ -1,6 +1,7 @@
 (ns lunjure.api.location
   (:use lunjure.http
-        compojure.core))
+        compojure.core)
+  (:require [lunjure.locations :as locations]))
 
 (def dummy-locations
   #{"REWE" "Russland" "Rumpelkammer" "REAL" "Rakete"})
@@ -15,7 +16,6 @@
 (defroutes location-routes
   (GET "/locations" req
        (-> (if-let [token (-> req :params :token)]
-             (find-locations-like token)
-             dummy-locations)
+             (map :name (locations/find-locations-by-prefix token)))
            (sort)
            (json-response))))
