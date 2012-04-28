@@ -30,7 +30,12 @@
 ;;; Completion Stuff
 
 (defn on-input-change [event]
-  (logging/log "change:" (-> event .-currentTarget .-value)))
+  (let [el (.-currentTarget event)
+        text (.-value el)]
+    (if (not= 0 (.indexOf text "(defteam"))
+      (logging/log "Parsing command..." text))))
 
-(let [el (dom/get-element :message)]
-  (event/listen el "keyup" on-input-change))
+(let [el (dom/get-element :message)
+      ac (goog.ui.AutoComplete.Remote. "/locations" el)]
+  (event/listen el "keyup" on-input-change)
+  (.attachInputs ac el))
