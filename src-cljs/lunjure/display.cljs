@@ -1,9 +1,10 @@
 (ns lunjure.display
   (:require [clojure.browser.dom :as dom]
+            [goog.dom :as gdom]
             [clojure.browser.event :as event]))
 
 (defn append-element [el]
-  (dom/append (dom/get-element "text_window")
+  (dom/append (gdom/getFirstElementChild (dom/get-element "text_window"))
               el))
 
 (defmulti make-message-element :type)
