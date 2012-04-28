@@ -22,8 +22,10 @@
        :text text}
       (handle-command (map str obj) text))))
 
-(defmethod handle-command :default [[command & _] _]
-  (logging/log "Got unknown command: " command))
+(defmethod handle-command :default [[command & _] text]
+  (logging/log "Got unknown command: " command)
+  {:type :message
+   :text text})
 
 (defmethod handle-command "team" [[_ team time alias] text]
   {:type :team
@@ -46,10 +48,10 @@
    :lunch-time time
    :text text})
 
-(defmethod handle-command "invite" [[_ name] text]
-  {:type :invite
-   :name name
-   :text text})
+;; (defmethod handle-command "invite" [[_ name] text]
+;;   {:type :invite
+;;    :name name
+;;    :text text})
 
 (defn clj->js
   "Recursively transforms ClojureScript maps into Javascript objects,
