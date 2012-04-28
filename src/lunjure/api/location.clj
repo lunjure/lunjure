@@ -1,6 +1,7 @@
 (ns lunjure.api.location
   (:use lunjure.http
-        compojure.core))
+        compojure.core)
+  (:require [lunjure.locations :as locations]))
 
 (def dummy-locations
   #{"REWE" "Russland" "Rumpelkammer" "REAL" "Rakete"})
@@ -12,10 +13,17 @@
                   (.startsWith s)))
             dummy-locations)))
 
+(defn display-name [location]
+  (let [{:keys [name]} location
+        {:keys [address city]} (:location location)]
+    (->> (filter identity [name address city])
+         (interpose ", ")
+         (apply str))))
+
 (defroutes location-routes
-  (GET "/locations" req
+  (GET "/groups/:group-id/locations" [group-id :as req]
        (-> (if-let [term (-> req :params :term)]
-             (find-locations-like term)
-             dummy-locations)
+             (map display-name (locations/find-locations-by-prefix group-id term))
+             [])
            (sort)
            (json-response))))

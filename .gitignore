@@ -10,3 +10,7 @@
 /target
 /resources/public/lunjure.js
 /.lein-cljsbuild*
+*~
+*#
+.#*
+src/lunjure/foursquare_config.clj

@@ -92,12 +92,13 @@
   (let [term (.-term request)
         [cmd location] (simple-parse-command term)]
     (when location
-     (-> jquery
-         (.getJSON (str "/locations?term=" location)
-                   nil
-                   (fn [data status xhr]
-                     (logging/log "cmd: " data)
-                     (response (apply array (map #(str "(" cmd " " %) data))))))) ))
+      (-> jquery
+          (.getJSON (str (-> js/window .-location .-pathname)
+                         "/locations?term=" (js/encodeURIComponent location))
+                    nil
+                    (fn [data status xhr]
+                      (logging/log "cmd: " data)
+                      (response (apply array (map #(str "(" cmd " " %) data))))))) ))
 
 (jquery (fn []
           (-> (jquery "#message")
