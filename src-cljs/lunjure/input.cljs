@@ -21,27 +21,27 @@
   (logging/log "Got unknown command: " command))
 
 (defmethod handle-command "team" [[_ team time alias] text]
-  {:type :defteam
+  {:type :team
    :name  team
    :time  time
    :alias alias
    :text  text})
 
-(defmethod handle-command "join" [[_ team]]
+(defmethod handle-command "join" [[_ team] text]
   {:type :join
    :team team
    :text text})
 
-(defmethod handle-command "leave" [_]
+(defmethod handle-command "leave" [_ text]
   {:type :leave
    :text text})
 
-(defmethod handle-command "time" [[_ time]]
+(defmethod handle-command "time" [[_ time] text]
   {:type :time
    :time time
    :text text})
 
-(defmethod handle-command "invite" [[_ name]]
+(defmethod handle-command "invite" [[_ name] text]
   {:type :invite
    :name name
    :text text})
