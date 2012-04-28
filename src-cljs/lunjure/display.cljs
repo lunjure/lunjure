@@ -66,3 +66,8 @@
   (.. (jquery "<p>")
       (attr "class" "status")
       (text (str (:user obj) " has entered the Group."))))
+
+(defmethod make-message-element :geolocation [obj]
+  (.. (jquery "<p>")
+      (attr "class" "status")
+      (text (str (:user obj) " changed the geolocation of this Group."))))

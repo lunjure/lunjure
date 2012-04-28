@@ -7,6 +7,7 @@
 
 (defn send-data [data]
   (binding [*print-meta* true]
+    (.log js/console (pr-str data))
     (.send *socket* (pr-str data))))
 
 (defn handle-close [])
