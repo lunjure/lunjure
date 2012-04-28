@@ -11,7 +11,7 @@
 (def ^{:private true} USERS_NS "lunjure.users")
 (def ^{:private true} USERS_KEY "lunjure/users")
 
-(defn- group-key [id] (str GROUPS_NS "/" id))
+(defn- group-key [name] (str GROUPS_NS "/" name))
 (defn- group-messages-key [id] (str GROUPS_NS ".messages/" id))
 (defn- group-invations-key [id] (str GROUPS_NS ".invitations/" id))
 (defn- group-members-key [id] (str GROUPS_NS ".members/" id))
@@ -37,7 +37,7 @@
   [group-name]
   (if-let [added? (= 1 (redis/sadd db GROUPS_KEY group-name))]
     (let [id (util/new-uuid)]
-      (redis/set db (group-key id) group-name)
+      (redis/set db (group-key group-name) id)
       {:id id :name group-name})
     {:error (str "Group with name " group-name " already exists.")}))
 
@@ -123,3 +123,6 @@
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
   [team-id])
+
+(defn get-group-id-by-name [name]
+  (redis/get db (group-key name)))
