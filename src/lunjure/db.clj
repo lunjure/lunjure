@@ -6,6 +6,7 @@
 
 (def db (redis/init))
 
+(def ^{:private true} TEAMS_NS "lunjure.teams")
 (def ^{:private true} GROUPS_NS "lunjure.groups")
 (def ^{:private true} GROUPS_KEY "lunjure/groups")
 (def ^{:private true} USERS_NS "lunjure.users")
@@ -17,9 +18,9 @@
 (defn- group-members-key [id] (str GROUPS_NS ".members/" id))
 (defn- group-location-key [id] (str GROUPS_NS ".location/" id))
 (defn- group-venues-key [id] (str GROUPS_NS ".venues/" id))
-(defn- team-key [group-id team-id] (str GROUPS_NS "." group-id ".teams/" team-id))
+(defn- team-key [team-id] (str TEAMS_NS "/" team-id))
 (defn- teams-key [group-id] (str GROUPS_NS ".teams/" group-id))
-
+(defn- team-members-key [team-id] (str TEAMS_NS ".members/" team-id))
 (defn- user-key [id] (str USERS_NS "/" id))
 
 (defn create-user!
@@ -102,7 +103,7 @@
   [group-id team]
   (let [team-id (util/new-uuid)]
     (redis/sadd db (teams-key group-id) team-id)
-    (redis/set db (team-key group-id team-id) (pr-str team))
+    (redis/set db (team-key team-id) (pr-str team))
     (assoc team :id team-id)))
 
 (defn get-teams
@@ -113,16 +114,18 @@
 
 (defn add-to-team!
   "Adds the user with the specified id to the given team."
-  [team-id user-id])
+  [team-id user-id]
+  (redis/sadd db (team-members-key team-id) user-id))
 
 (defn remove-from-team!
   "Removes the specified user from the team with the given id."
   [team-id user-id]
-  )
+  (redis/srem db (team-members-key team-id) user-id))
 
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
-  [team-id])
+  [team-id]
+  (redis/smembers db (team-members-key team-id)))
 
 (defn get-group-id-by-name [name]
   (redis/get db (group-key name)))
