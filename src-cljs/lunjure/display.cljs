@@ -25,10 +25,11 @@
 (defmulti make-message-element :type)
 
 ;;; TODO: Change to :message
+;;; TODO: data-usercolor
 (defmethod make-message-element :default [obj]
   (.. (jquery "<p>")
-      (attr "name" (:user obj))
-      (attr "alt" (format-time-string (:time-string obj)))
+      (attr "data-username" (:user obj))
+      (attr "data-time" (format-time-string (:time-string obj)))
       (text (:text obj))))
 
 (defmethod make-message-element :team [obj]
