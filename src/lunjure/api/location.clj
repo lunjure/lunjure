@@ -13,10 +13,13 @@
                   (.startsWith s)))
             dummy-locations)))
 
+(defn display-name [location]
+  (apply str (interpose ", " (map location [:name :address :city]))))
+
 (defroutes location-routes
   (GET "/groups/:group-id/locations" [group-id :as req]
        (-> (if-let [term (-> req :params :term)]
-             (map :name (locations/find-locations-by-prefix group-id term))
+             (map display-name (locations/find-locations-by-prefix group-id term))
              [])
            (sort)
            (json-response))))
