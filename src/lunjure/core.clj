@@ -26,6 +26,7 @@
       (wrap-session)
       (wrap-keyword-params)
       (wrap-params)
+      (wrap-file "resources/public")
       (wrap-file "design/static")
       (wrap-file-info)))
 
