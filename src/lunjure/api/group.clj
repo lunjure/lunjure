@@ -17,7 +17,7 @@
   (get @group-channels group))
 
 (def time-string-formatter
-  (java.text.SimpleDateFormat. "HH:MM"))
+  (java.text.SimpleDateFormat. "HH:mm"))
 
 (defn enrich-message
   ([user msg]
