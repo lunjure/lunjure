@@ -2,12 +2,12 @@
   (:use aleph.http
         ring.util.response
         ring.middleware.file
-        ring.middleware.file-info)
+        ring.middleware.file-info
+        lunjure.view)
   (:require [swank.swank :as swank]))
 
 (def app
-  (-> (fn [request]
-        (not-found "Nil."))
+  (-> (var view-routes)
       (wrap-file "design/static")
       (wrap-file "resources/public")
       (wrap-file-info)))
