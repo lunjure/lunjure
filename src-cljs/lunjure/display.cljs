@@ -76,6 +76,12 @@
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has entered."))))
 
+(defmethod make-message-element :exit [obj]
+  (.. (jquery "<p>")
+      (attr "class" "status")
+      (attr "data-time" (format-time-string (:time-string obj)))
+      (text (str (:user obj) " has left."))))
+
 (defmethod make-message-element :geolocation [obj]
   (.. (jquery "<p>")
       (attr "class" "status")
