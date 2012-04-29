@@ -22,6 +22,10 @@
         (let [authz-request (auth/authz-request foursquare/client)]
           (redirect (:uri authz-request))))
 
+  (POST "/logout" req
+        (-> (redirect "/login")
+            (assoc :session nil)))
+  
   (GET "/oauth2/authorize" req
        (if-let [code (get-in req [:params :code])]
          (let [token
