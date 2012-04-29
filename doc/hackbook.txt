@@ -24,3 +24,22 @@ From our persistence code:
   [group-id]
   (let [team-names (redis/smembers db (teams-key group-id))]
     (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
+
+
+This is Lunjure's complete chat Websocket handler code. It
+gracefully handles disconnects, notifies all users in the room
+about entering and leaving users, sends the recent chat history to
+entered users and wires their connections with the message handler
+- all in 12 lines of Clojure!
+
+(defn user-group-chat-handler [group-channel group-id user]
+  (fn [user-channel handshake]
+    (siphon group-channel user-channel)
+    (on-closed user-channel (partial broadcast-message group-channel group-id user {:type :exit}))
+    (send-history user-channel group-id)
+    (broadcast-message group-channel group-id user {:type :enter})
+    (let [user-channel (map* (partial enrich-message user) user-channel)]
+      (-> (fork user-channel)
+          (receive-in-order (partial db/add-message! group-id)))
+      (-> (map* (comp pr-str handle-message) user-channel)
+          (siphon  group-channel)))))
