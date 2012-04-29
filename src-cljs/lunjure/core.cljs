@@ -25,10 +25,15 @@
                         text (dom/get-value el)
                         msg (input/parse-input text)]
                     (socket/send-data msg)
-                    (dom/set-value el "")))))
+                    (dom/set-value el "")
+                    (.focus (dom/get-element "message"))))))
+
+
 
 (let [location (.-location js/window)]
   (socket/open-socket (str "ws://"
                            (.-host location)
                            (.-pathname location)
                            "/socket")))
+
+(.focus (dom/get-element "message"))
