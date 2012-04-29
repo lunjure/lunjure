@@ -22,6 +22,7 @@
 (defn- teams-key [group-id] (str GROUPS_NS "." group-id "/teams"))
 (defn- team-members-key [group-id team-name] (str GROUPS_NS  "." group-id ".teams." team-name "/members"))
 (defn- user-key [id] (str USERS_NS "/" id))
+(defn- team-membership-key [group-id user-id] (str GROUPS_NS "." group-id ".user." user-id "/team"))
 
 (defn store-foursquare-user!
   "Stores the specified Foursquare user so that it can be retrieved
@@ -125,17 +126,28 @@
 (defn add-to-team!
   "Adds the user with the specified id to the given team."
   [group-id team-name user-id]
-  (redis/sadd db (team-members-key group-id team-name) user-id))
+  (let [mkey (team-membership-key group-id user-id)
+        prev-team (redis/get db mkey)]
+    (when (not (nil? prev-team))
+      (redis/srem db (team-members-key group-id prev-team) user-id))
+    (redis/sadd db (team-members-key group-id team-name) user-id)
+    (redis/set db (team-membership-key group-id user-id) team-name)))
 
 (defn remove-from-team!
   "Removes the specified user from the team with the given id."
   [group-id team-name user-id]
-  (redis/srem db (team-members-key group-id team-name) user-id))
+  (redis/srem db (team-members-key group-id team-name) user-id)
+  (redis/del db [(team-membership-key group-id user-id)]))
 
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
   [group-id team-name]
   (redis/smembers db (team-members-key group-id team-name)))
+
+(defn get-current-team
+  "Returns the current team of the user with the given id."
+  [group-id user-id]
+  (redis/get db (team-membership-key group-id user-id)))
 
 (defn get-group-id-by-name [name]
   (redis/get db (group-key name)))
