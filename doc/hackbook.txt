@@ -1,0 +1,26 @@
+Autocompletion for locations:
+
+(defn display-name [location]
+  (let [{:keys [name]} location
+        {:keys [address city]} (:location location)]
+    (->> (filter identity [name address city])
+         (interpose ", ")
+         (apply str)
+         (pr-str))))
+
+(defroutes location-routes
+  (GET "/groups/:group-id/locations" [group-id :as req]
+       (-> (if-let [term (-> req :params :term)]
+             (map display-name (locations/find-locations-by-prefix group-id term))
+             [])
+           (sort)
+           (json-response))))
+
+
+From our persistence code:
+
+(defn get-teams
+  "Returns all teams of the given group."
+  [group-id]
+  (let [team-names (redis/smembers db (teams-key group-id))]
+    (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
