@@ -17,7 +17,7 @@
     (let [user (-> req :session :user)]
       (if (or user (contains? #{"/oauth2/authorize" "/login"} (-> req :uri)))
         (handler (assoc req :user user))
-        (redirect "/login")))))<
+        (redirect "/login")))))
 
 (def app
   (-> (routes

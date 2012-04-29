@@ -16,4 +16,4 @@
 (defn weeks [n] (* n (days 7)))
 
 (defn now []
-  (long (/ (System/currentTimeMillis) 1000)))
+  (System/currentTimeMillis))

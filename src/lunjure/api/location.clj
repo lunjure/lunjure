@@ -18,7 +18,8 @@
         {:keys [address city]} (:location location)]
     (->> (filter identity [name address city])
          (interpose ", ")
-         (apply str))))
+         (apply str)
+         (pr-str))))
 
 (defroutes location-routes
   (GET "/groups/:group-id/locations" [group-id :as req]

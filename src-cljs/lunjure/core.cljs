@@ -4,6 +4,19 @@
             [clojure.browser.dom :as dom]
             [clojure.browser.event :as event]))
 
+(defmethod input/handle-command "geolocation" [_ text]
+  (-> js/navigator
+      .-geolocation
+      (.getCurrentPosition (fn success [pos]
+                             (let [c (.-coords pos)]
+                              (socket/send-data {:type :geolocation
+                                                 :latitude  (.-latitude  c)
+                                                 :longitude (.-longitude c)
+                                                 :accuracy  (.-accuracy  c)})))
+                           (fn error [pos]
+                             (.log js/console "Failed to update geolocation."))
+                           (js* "{maximumAge:600000}"))))
+
 (event/listen (dom/get-element "message")
               "keydown"
               (fn [ev]
