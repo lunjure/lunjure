@@ -15,12 +15,13 @@
 (defn wrap-auth [handler]
   (fn [req]
     (let [user (-> req :session :user)]
-      (if (or user (= "/login" (-> req :uri)))
+      (if (or user (contains? #{"/oauth2/authorize" "/login"} (-> req :uri)))
         (handler (assoc req :user user))
         (redirect "/login")))))
 
 (def app
   (-> (routes
+       (var demo/demo-routes)
        (var api-routes)
        (var view-routes))
       (wrap-auth)

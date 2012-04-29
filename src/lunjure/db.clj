@@ -13,25 +13,25 @@
 (def ^{:private true} USERS_KEY "lunjure/users")
 
 (defn- group-key [name] (str GROUPS_NS "/" name))
-(defn- group-messages-key [id] (str GROUPS_NS ".messages/" id))
-(defn- group-invations-key [id] (str GROUPS_NS ".invitations/" id))
-(defn- group-members-key [id] (str GROUPS_NS ".members/" id))
-(defn- group-location-key [id] (str GROUPS_NS ".location/" id))
-(defn- group-venues-key [id] (str GROUPS_NS ".venues/" id))
-(defn- team-key [team-id] (str TEAMS_NS "/" team-id))
-(defn- teams-key [group-id] (str GROUPS_NS ".teams/" group-id))
-(defn- team-members-key [team-id] (str TEAMS_NS ".members/" team-id))
+(defn- group-messages-key [id] (str GROUPS_NS "." id "/messages"))
+(defn- group-invations-key [id] (str GROUPS_NS "." id "/invitations"))
+(defn- group-members-key [id] (str GROUPS_NS "." id "/members"))
+(defn- group-location-key [id] (str GROUPS_NS "." id "/location"))
+(defn- group-venues-key [id] (str GROUPS_NS "." id "/venues"))
+(defn- team-key [group-id team-name] (str GROUPS_NS "." group-id ".teams/" team-name))
+(defn- teams-key [group-id] (str GROUPS_NS "." group-id "/teams"))
+(defn- team-members-key [group-id team-name] (str GROUPS_NS  "." group-id ".teams." team-name "/members"))
 (defn- user-key [id] (str USERS_NS "/" id))
 
-(defn create-user!
-  "Creates the user with the given name. Dummy until we have
-   implemented authentication via Foursquare."
-  [user-name]
-  (if-let [added? (= 1 (redis/sadd db USERS_KEY user-name))]
-    (let [id (util/new-uuid)]
-      (redis/set db (user-key id) user-name)
-      {:id id :name user-name})
-    {:error (str "User with name " user-name " already exists.")}))
+(defn store-foursquare-user!
+  "Stores the specified Foursquare user so that it can be retrieved
+   by its Foursquare user id."
+  [user]
+  (if-let [added? (= 1 (redis/sadd db USERS_KEY (:id user)))]
+    (do
+      (redis/set db (user-key (:id user)) (pr-str user))
+      user)
+    {:error (str "User with id " (:id user) " already exists.")}))
 
 (defn create-group!
   "Creates a group with the given name."
@@ -85,7 +85,8 @@
 (defn set-group-location!
   "Sets the current geo-location of the specified group."
   [group-id location]
-  (redis/set db (group-location-key group-id) (pr-str location)))
+  (redis/set db (group-location-key group-id) (pr-str location))
+  (redis/del db [(group-venues-key group-id)]))
 
 (defn get-venues-for-group
   "Returns all venues cached for the specified group."
@@ -101,31 +102,31 @@
 (defn create-team!
   "Creates a new team that belongs to the specified group."
   [group-id team]
-  (let [team-id (util/new-uuid)]
-    (redis/sadd db (teams-key group-id) team-id)
-    (redis/set db (team-key team-id) (pr-str team))
-    (assoc team :id team-id)))
+  (let [team-name (:name team)]
+    (redis/sadd db (teams-key group-id) team-name)
+    (redis/set db (team-key group-id team-name) (pr-str team))
+    team))
 
 (defn get-teams
   "Returns all teams of the given group."
   [group-id]
-  (let [team-ids (redis/smembers db (teams-key group-id))]
-    (map read-string (apply redis/mget db (map (partial team-key group-id) team-ids)))))
+  (let [team-names (redis/smembers db (teams-key group-id))]
+    (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
 
 (defn add-to-team!
   "Adds the user with the specified id to the given team."
-  [team-id user-id]
-  (redis/sadd db (team-members-key team-id) user-id))
+  [group-id team-name user-id]
+  (redis/sadd db (team-members-key group-id team-name) user-id))
 
 (defn remove-from-team!
   "Removes the specified user from the team with the given id."
-  [team-id user-id]
-  (redis/srem db (team-members-key team-id) user-id))
+  [group-id team-name user-id]
+  (redis/srem db (team-members-key group-id team-name) user-id))
 
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
-  [team-id]
-  (redis/smembers db (team-members-key team-id)))
+  [group-id team-name]
+  (redis/smembers db (team-members-key group-id team-name)))
 
 (defn get-group-id-by-name [name]
   (redis/get db (group-key name)))
