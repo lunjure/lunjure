@@ -30,7 +30,8 @@
                foursquare-user (users/self token)]
            (db/store-foursquare-user! foursquare-user)
            (-> (redirect "/")
-               (assoc-in [:session :user] (assoc (rename-keys (select-keys foursquare-user [:id :firstName :lastName])
+               (assoc-in [:session :user] (assoc (rename-keys (select-keys foursquare-user
+                                                                           [:id :firstName :lastName :photo])
                                                               {:firstName :first-name :lastName :last-name})
                                             :access-token token))))
           (redirect "/login"))))
