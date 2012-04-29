@@ -64,7 +64,7 @@
 
 (defn send-history [channel group-id]
   (let [threshold (- (now) (* 1000 (hours 12)))]
-    (doseq [message (->> (db/get-messages group-id 100)
+    (doseq [message (->> (db/get-messages group-id -1)
                          (filter (fn [m] (and (:time m) (> (:time m) threshold))))
                          (reverse)
                          (map pr-str))]
