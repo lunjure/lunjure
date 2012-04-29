@@ -35,7 +35,10 @@ representation format like JSON.
   "Returns all teams of the given group."
   [group-id]
   (let [team-names (redis/smembers db (teams-key group-id))]
-    (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
+  (->> team-names
+       (map (partial team-key group-id))
+       (apply redis/mget db)
+       (map read-string))))
 
 
 This is Lunjure's complete chat Websocket handler code. It
@@ -50,8 +53,10 @@ entered users and wires their connections with the message handler
     (on-closed user-channel (partial broadcast-message group-channel group-id user {:type :exit}))
     (send-history user-channel group-id)
     (broadcast-message group-channel group-id user {:type :enter})
-    (let [user-channel (map* (partial enrich-message user) user-channel)]
+    (let [user-channel (mapcat* (comp (partial handle-message group-id)
+                                      (partial enrich-message user))
+                                user-channel)]
       (-> (fork user-channel)
           (receive-in-order (partial db/add-message! group-id)))
-      (-> (map* (comp pr-str handle-message) user-channel)
-          (siphon  group-channel)))))
+      (-> (map* pr-str user-channel)
+          (siphon group-channel)))))
