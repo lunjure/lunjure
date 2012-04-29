@@ -21,6 +21,7 @@
    "+1" "plusOne"
    "-1" "minusOne"
    ":burger:" "burger"
+   ":coffee:" "coffee"
    ":cry:" "cry"
    ":hehe:" "hehe"
    ":ice:" "ice"
