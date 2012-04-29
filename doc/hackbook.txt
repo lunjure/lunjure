@@ -1,4 +1,9 @@
-Autocompletion for locations:
+Autocompletion for locations. Building the display name for a location was
+kind of challenging at first. This is what we came up with, and it is a
+very good example of using macros for making chaining of function calls
+more readable. The default Clojure syntax would require a lot of nested
+expressions where it becomes difficult to identify the arguments of
+the called functions.
 
 (defn display-name [location]
   (let [{:keys [name]} location
@@ -17,7 +22,14 @@ Autocompletion for locations:
            (json-response))))
 
 
-From our persistence code:
+This is a typical code snippet from our persistence layer. We are using Redis
+for storing our data, and so, as with many NoSQL databases, a lot of the
+data aggregation needs to be done by the application, but as this snippet
+shows, this can be handled quite elegantly with a language like Clojure with 
+all its functional concepts. Also, as you can see, we just serialize and
+deserialize (using read-string) Clojure data structures when storing or 
+retrieving them from Redis, instead of having to use a "non-native" data 
+representation format like JSON.
 
 (defn get-teams
   "Returns all teams of the given group."
