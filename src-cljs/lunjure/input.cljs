@@ -31,7 +31,7 @@
 (defmethod handle-command "team" [[_ team time location] text]
   {:type :team
    :name  team
-   :time  time
+   :lunch-time  time
    :location location
    :text  text})
 
