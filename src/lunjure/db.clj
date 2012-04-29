@@ -113,6 +113,11 @@
   (let [team-names (redis/smembers db (teams-key group-id))]
     (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
 
+(defn team-exists?
+  "Does the given team exist?"
+  [group-id team-name]
+  (redis/exists db (team-key group-id team-name)))
+
 (defn add-to-team!
   "Adds the user with the specified id to the given team."
   [group-id team-name user-id]
