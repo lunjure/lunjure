@@ -87,10 +87,8 @@
     (let [user-channel (map* (partial enrich-message user) user-channel)]
       (-> (fork user-channel)
           (receive-in-order (partial db/add-message! group-id)))
-      (receive-all user-channel (bound-fn* prn))
-      (let [ch (map* handle-message user-channel)]
-        (receive-all ch (bound-fn* prn))
-        (siphon (map* pr-str ch) group-channel)))))
+      (-> (map* (comp pr-str handle-message) user-channel)
+          (siphon  group-channel)))))
 
 (defn user->string [user]
   (str (:first-name user) " " (:last-name user)))
