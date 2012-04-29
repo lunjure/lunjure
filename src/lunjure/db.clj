@@ -13,14 +13,14 @@
 (def ^{:private true} USERS_KEY "lunjure/users")
 
 (defn- group-key [name] (str GROUPS_NS "/" name))
-(defn- group-messages-key [id] (str GROUPS_NS ".messages/" id))
-(defn- group-invations-key [id] (str GROUPS_NS ".invitations/" id))
-(defn- group-members-key [id] (str GROUPS_NS ".members/" id))
-(defn- group-location-key [id] (str GROUPS_NS ".location/" id))
-(defn- group-venues-key [id] (str GROUPS_NS ".venues/" id))
+(defn- group-messages-key [id] (str GROUPS_NS "." id "/messages"))
+(defn- group-invations-key [id] (str GROUPS_NS "." id "/invitations"))
+(defn- group-members-key [id] (str GROUPS_NS "." id "/members"))
+(defn- group-location-key [id] (str GROUPS_NS "." id "/location"))
+(defn- group-venues-key [id] (str GROUPS_NS "." id "/venues"))
 (defn- team-key [team-id] (str TEAMS_NS "/" team-id))
-(defn- teams-key [group-id] (str GROUPS_NS ".teams/" group-id))
-(defn- team-members-key [team-id] (str TEAMS_NS ".members/" team-id))
+(defn- teams-key [group-id] (str GROUPS_NS "." group-id "/teams"))
+(defn- team-members-key [team-id] (str TEAMS_NS "." team-id "/members"))
 (defn- user-key [id] (str USERS_NS "/" id))
 
 (defn store-foursquare-user!
@@ -86,7 +86,7 @@
   "Sets the current geo-location of the specified group."
   [group-id location]
   (redis/set db (group-location-key group-id) (pr-str location))
-  (redis/del db (group-venues-key group-id)))
+  (redis/del db [(group-venues-key group-id)]))
 
 (defn get-venues-for-group
   "Returns all venues cached for the specified group."
