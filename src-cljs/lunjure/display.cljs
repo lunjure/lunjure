@@ -16,7 +16,55 @@
 
 ;;; Team list (notepad)
 
+(defn- make-user [obj]
+  (assert (:user-id obj))
+  (assert (:user obj))
+  (.. (jquery "<li>")
+      (addClass "user")
+      (addClass (str "userId-" (:user-id obj)))
+      (append (.. (jquery "<div>")
+                  ;; TODO: Use foursquare avatar
+                  (append (.attr (jquery "<img>")
+                                "src" "/images/avatar.png"))
+                  (append (:user obj))))))
 
+(defn- make-team [name & [foursquare-id]]
+  (.. (jquery "<ul>")
+      (addClass "team")
+      (addClass (str "team-" (hash name)))
+      (append (.. (jquery "<li>")
+                  (addClass "team-name")
+                  (append (.text (jquery "<span>") name))
+                  (append (.addClass (jquery "<ul>") "users"))))))
+
+(defn- append-user [team-name user]
+  (.. (jquery (str ".team-" (hash team-name) " .users"))
+      (append user)))
+
+(defn- get-team [name]
+  (jquery (str ".team-" (hash name))))
+
+(defn- display-in-team [user user-id team-name]
+  (.log js/console user-id)
+  (.remove (jquery (str ".userId-" user-id)))
+  (append-user team-name (make-user {:user user
+                                     :user-id user-id})))
+
+(defn add-team [team-name]
+  (.. (jquery "#text_pad .wrapper")
+      (append (make-team team-name))))
+
+(defn- test-tree []
+  (add-team "Foobar")
+  (doseq [n ["Foo" "bar" "Baz"]]
+    (append-user "Foobar" (make-user {:user n
+                                      :user-id "foobar4242"}))))
+
+;; (def- append-team [name]
+;;   (.. (jquery "<ul>")
+;;       (class "team")
+;;       (append (.. (jquery "<li>")
+;;                   (class "team-name")))))
 
 ;;; Chat messages
 
