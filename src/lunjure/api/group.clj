@@ -73,7 +73,9 @@
 (defmulti handle-message* :type)
 
 (defmethod handle-message* :default [message]
-  [message])
+  (if (= "" (.trim (:text message)))
+    []
+    [message]))
 
 (defmethod handle-message* :team [{:keys [name lunch-time location group-id user-id] :as message}]
   (let [time (parse-time lunch-time)
