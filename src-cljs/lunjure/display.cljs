@@ -41,9 +41,7 @@
                             (attr "src" (str "/images/emoticons/" emoji-img ".png"))
                             (get 0)
                             -outerHTML)]
-                (.log js/console (str "ho: " img))
                 (reduce (fn [text emoji]
-                          (.log js/console text)
                           (.replace text emoji img))
                         text
                         (if (set? emoji-names)
