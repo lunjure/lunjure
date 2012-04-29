@@ -59,7 +59,7 @@
 
 (defn- display-in-team [user user-id team-name & [photo-id]]
   (.log js/console user-id)
-  (.remove (jquery))
+  (.remove (jquery (str ".userId-" user-id)))
   (append-user team-name (make-user {:user user
                                      :user-id user-id
                                      :photo-id photo-id})))
@@ -153,8 +153,9 @@
 (defmethod make-message-element :enter [obj]
   ;; Add user to the "Undecided" group
   ;; TODO: Check if user is already in a group
-  (if (user-in-team? (:user-id obj) "Undecided")
-    nil
+  (when (or (= 0 (.-length (get-user (:user-id obj))))
+            (user-in-team? (:user-id obj) "Undecided"))
+    (.log js/console "We are IN 'Undecided'")
     (display-in-team (:user obj)
                      (:user-id obj)
                      "Undecided"
