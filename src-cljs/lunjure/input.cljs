@@ -28,11 +28,11 @@
   {:type :message
    :text text})
 
-(defmethod handle-command "team" [[_ team time alias] text]
+(defmethod handle-command "team" [[_ team time location] text]
   {:type :team
    :name  team
    :time  time
-   :alias alias
+   :location location
    :text  text})
 
 (defmethod handle-command "join" [[_ team] text]
@@ -79,19 +79,20 @@
 ;;       (logging/log "Parsing command..." text))))
 
 (defn simple-parse-command [text]
-  (when-let [[_ cmd location] (re-find #"^\(([^ ]+) ([^ ]+)" text)]
-    [cmd location]))
+  (when-let [[_ cmd alias time location]
+             (re-find #"^\(([^ ]+)\s+([^ ]+)\s+([^ ]+)\s+([^ ]+)" text)]
+    [cmd alias time location]))
 
 (defn autocomplete-should-complete [event ui]
   (let [el (.-currentTarget event)
         text (.-value el)]
-    (when-let [[cmd location] (simple-parse-command text)]
+    (when-let [[cmd alias time location] (simple-parse-command text)]
       (logging/log "asdf" location)
       (boolean location))))
 
 (defn data-provider [request response]
   (let [term (.-term request)
-        [cmd location] (simple-parse-command term)]
+        [cmd alias time location] (simple-parse-command term)]
     (when location
       (-> jquery
           (.getJSON (str (-> js/window .-location .-pathname)
@@ -99,7 +100,7 @@
                     nil
                     (fn [data status xhr]
                       (logging/log "cmd: " data)
-                      (response (apply array (map #(str "(" cmd " " %) data))))))) ))
+                      (response (apply array (map #(str "(" cmd " " alias " " time " " %) data))))))) ))
 
 (jquery (fn []
           (-> (jquery "#message")
