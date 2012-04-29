@@ -75,10 +75,11 @@
 (defmethod handle-message* :default [message]
   [message])
 
-(defmethod handle-message* :team [{:keys [name lunch-time location group-id] :as message}]
+(defmethod handle-message* :team [{:keys [name lunch-time location group-id user-id] :as message}]
   (let [time (parse-time lunch-time)
         message (assoc message :lunch-time time)]
     (db/create-team! group-id (select-keys message [:name :lunch-time :location]))
+    (db/add-to-team! group-id name user-id)
     [message]))
 
 (defmethod handle-message* :join [{:keys [group-id team user-id] :as message}]
