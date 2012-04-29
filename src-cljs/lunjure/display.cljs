@@ -44,11 +44,25 @@
 (defn- get-team [name]
   (jquery (str ".team-" (hash name))))
 
-(defn- display-in-team [user user-id team-name]
+(defn get-user [user-id]
+  (jquery (str ".userId-" user-id)))
+
+(defn user-in-team? [user-id team-name]
+  (let [user (first (.makeArray jquery (get-user user-id)))
+        tn (-> user
+               (jquery)
+               (.parents ".team")
+               (.children ".team-name")
+               (.children "span")
+               (.text))]
+    (= team-name tn)))
+
+(defn- display-in-team [user user-id team-name & [photo-id]]
   (.log js/console user-id)
-  (.remove (jquery (str ".userId-" user-id)))
+  (.remove (jquery))
   (append-user team-name (make-user {:user user
-                                     :user-id user-id})))
+                                     :user-id user-id
+                                     :photo-id photo-id})))
 
 (defn add-team [team-name]
   (.. (jquery "#text_pad .wrapper")
@@ -84,7 +98,12 @@
       (text (:text obj))))
 
 (defmethod make-message-element :team [obj]
-  ;; TODO: Team zur Liste hinzufuegen
+  (add-team (:name obj))
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   (:name obj)
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -101,7 +120,6 @@
 ;;                (str (:user obj) " hat " (:name obj) " eingeladen.")))
 
 (defmethod make-message-element :time [obj]
-  ;; TODO: Zeit aktualisieren
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -111,20 +129,37 @@
                  "."))))
 
 (defmethod make-message-element :leave [obj]
-  ;; TODO: Aus Liste entfernen
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   "Undecided"
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has left team " (:team obj) "."))))
 
 (defmethod make-message-element :join [obj]
-  ;; TODO: Zur Liste hinzufuegen
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   (:team obj)
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has joined team " (:team obj) "."))))
 
 (defmethod make-message-element :enter [obj]
+  ;; Add user to the "Undecided" group
+  ;; TODO: Check if user is already in a group
+  (if (user-in-team? (:user-id obj) "Undecided")
+    nil
+    (display-in-team (:user obj)
+                     (:user-id obj)
+                     "Undecided"
+                     (:user-photo obj)))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -141,3 +176,6 @@
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has changed the group's geolocation."))))
+
+;;; Add an "undecided" team
+(add-team "Undecided")
