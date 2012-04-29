@@ -112,7 +112,10 @@
   "Returns all teams of the given group."
   [group-id]
   (let [team-names (redis/smembers db (teams-key group-id))]
-    (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
+    (->> team-names
+         (map (partial team-key group-id))
+         (apply redis/mget db)
+         (map read-string))))
 
 (defn team-exists?
   "Does the given team exist?"
