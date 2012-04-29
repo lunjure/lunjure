@@ -11,6 +11,7 @@
   {#{":-)" ":)"} "smile"
    #{";-)" ";)"} "blink"
    #{":-D" ":D"} "bigSmile"
+   #{";-D" ";D"} "bigBlink"
    #{";-P" ";P"} "blinkTongue"
    #{":-P" ":P"} "tongue"
    #{":-X" ":X"} "iDontGiveAFuck"
