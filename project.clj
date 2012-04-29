@@ -11,6 +11,7 @@
                  [clj-foursquare "0.1-SNAPSHOT"]
                  [commons-codec "1.5" :exclusions [commons-logging]] ;Base64
                  [lamina "0.4.1-beta2"]
+                 [clj-time "0.3.3"]
                  ]
   :main lunjure.core
   :plugins [[lein-cljsbuild "0.1.8"]]

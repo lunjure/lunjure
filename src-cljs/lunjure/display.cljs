@@ -40,7 +40,13 @@
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (str (:user obj) " has created team " (:name obj) "."))))
+      (text (str (:user obj)
+                 " has created team "
+                 (:name obj)
+                 (if (:lunch-time obj)
+                   (str " (" (:lunch-time obj) ")")
+                   "")
+                 "."))))
 
 ;; (defmethod make-message-element :invite [obj]
 ;;   (dom/element :p {"class" "status"}
