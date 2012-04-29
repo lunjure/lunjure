@@ -16,17 +16,25 @@
 
 ;;; Team list (notepad)
 
+(defn sanitize-avatar-url [url]
+  (when (= -1 (.indexOf url "blank_"))
+    url))
+
 (defn- make-user [obj]
   (assert (:user-id obj))
   (assert (:user obj))
-  (.. (jquery "<li>")
-      (addClass "user")
-      (addClass (str "userId-" (:user-id obj)))
-      (append (.. (jquery "<div>")
-                  ;; TODO: Use foursquare avatar
-                  (append (.attr (jquery "<img>")
-                                "src" "/images/avatar.png"))
-                  (append (:user obj))))))
+
+  (let [photo-url (sanitize-avatar-url (:user-photo obj))]
+   (.. (jquery "<li>")
+       (addClass "user")
+       (addClass (when photo-url "avatar"))
+       (addClass (str "userId-" (:user-id obj)))
+       (append (.. (jquery "<div>")
+                   (append (.attr (jquery "<img>")
+                                  "src" (if photo-url
+                                          photo-url
+                                          "/images/avatar.png")))
+                   (append (:user obj)))))))
 
 (defn- make-team [name & [foursquare-id]]
   (.. (jquery "<ul>")
@@ -59,10 +67,10 @@
 
 (defn- display-in-team [user user-id team-name & [photo-id]]
   (.log js/console user-id)
-  (.remove (jquery))
+  (.remove (jquery (str ".userId-" user-id)))
   (append-user team-name (make-user {:user user
                                      :user-id user-id
-                                     :photo-id photo-id})))
+                                     :user-photo photo-id})))
 
 (defn add-team [team-name]
   (.. (jquery "#text_pad .wrapper")
@@ -153,8 +161,9 @@
 (defmethod make-message-element :enter [obj]
   ;; Add user to the "Undecided" group
   ;; TODO: Check if user is already in a group
-  (if (user-in-team? (:user-id obj) "Undecided")
-    nil
+  (when (or (= 0 (.-length (get-user (:user-id obj))))
+            (user-in-team? (:user-id obj) "Undecided"))
+    (.log js/console "We are IN 'Undecided'")
     (display-in-team (:user obj)
                      (:user-id obj)
                      "Undecided"

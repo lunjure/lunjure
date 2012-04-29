@@ -3,6 +3,8 @@
             ;; TODO: move to core
             [lunjure.display :as display]))
 
+(def jquery (js* "$"))
+
 (def *socket* nil)
 
 (defn send-data [data]
@@ -10,8 +12,13 @@
     (.log js/console (pr-str data))
     (.send *socket* (pr-str data))))
 
-(defn handle-close [])
-(defn handle-open [])
+(defn handle-close []
+  (.. (jquery "#chat_window")
+      (removeClass "active")))
+
+(defn handle-open []
+  (.. (jquery "#chat_window")
+      (addClass "active")))
 
 (defn handle-socket-message [socket-event]
   (let [obj (reader/read-string (.-data socket-event))]
