@@ -131,18 +131,23 @@
     (when (not (nil? prev-team))
       (redis/srem db (team-members-key group-id prev-team) user-id))
     (redis/sadd db (team-members-key group-id team-name) user-id)
-    (redis/set db (team-membership-key group-id user-id))))
+    (redis/set db (team-membership-key group-id user-id) team-name)))
 
 (defn remove-from-team!
   "Removes the specified user from the team with the given id."
   [group-id team-name user-id]
   (redis/srem db (team-members-key group-id team-name) user-id)
-  (redis/del db (team-membership-key group-id user-id)))
+  (redis/del db [(team-membership-key group-id user-id)]))
 
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
   [group-id team-name]
   (redis/smembers db (team-members-key group-id team-name)))
+
+(defn get-current-team
+  "Returns the current team of the user with the given id."
+  [group-id user-id]
+  (redis/get db (team-membership-key group-id user-id)))
 
 (defn get-group-id-by-name [name]
   (redis/get db (group-key name)))
