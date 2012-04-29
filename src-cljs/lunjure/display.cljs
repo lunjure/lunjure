@@ -44,9 +44,22 @@
 (defn- get-team [name]
   (jquery (str ".team-" (hash name))))
 
+(defn get-user [user-id]
+  (jquery (str ".userId-" user-id)))
+
+(defn user-in-team? [user-id team-name]
+  (let [user (first (.makeArray jquery (get-user user-id)))
+        tn (-> user
+               (jquery)
+               (.parents ".team")
+               (.children ".team-name")
+               (.children "span")
+               (.text))]
+    (= team-name tn)))
+
 (defn- display-in-team [user user-id team-name & [photo-id]]
   (.log js/console user-id)
-  (.remove (jquery (str ".userId-" user-id)))
+  (.remove (jquery))
   (append-user team-name (make-user {:user user
                                      :user-id user-id
                                      :photo-id photo-id})))
@@ -139,10 +152,13 @@
 
 (defmethod make-message-element :enter [obj]
   ;; Add user to the "Undecided" group
-  (display-in-team (:user obj)
-                   (:user-id obj)
-                   "Undecided"
-                   (:user-photo obj))
+  ;; TODO: Check if user is already in a group
+  (if (user-in-team? (:user-id obj) "Undecided")
+    nil
+    (display-in-team (:user obj)
+                     (:user-id obj)
+                     "Undecided"
+                     (:user-photo obj)))
 
   (.. (jquery "<p>")
       (attr "class" "status")
