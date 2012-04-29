@@ -44,11 +44,12 @@
 (defn- get-team [name]
   (jquery (str ".team-" (hash name))))
 
-(defn- display-in-team [user user-id team-name]
+(defn- display-in-team [user user-id team-name & [photo-id]]
   (.log js/console user-id)
   (.remove (jquery (str ".userId-" user-id)))
   (append-user team-name (make-user {:user user
-                                     :user-id user-id})))
+                                     :user-id user-id
+                                     :photo-id photo-id})))
 
 (defn add-team [team-name]
   (.. (jquery "#text_pad .wrapper")
@@ -125,6 +126,12 @@
       (text (str (:user obj) " has joined team " (:team obj) "."))))
 
 (defmethod make-message-element :enter [obj]
+  ;; Add user to the "Undecided" group
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   "Undecided"
+                   (:photo-id obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -141,3 +148,6 @@
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has changed the group's geolocation."))))
+
+;;; Add an "undecided" team
+(add-team "Undecided")
