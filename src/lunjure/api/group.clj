@@ -83,10 +83,15 @@
     [message]))
 
 (defmethod handle-message* :join [{:keys [group-id team user-id] :as message}]
-  (if (db/team-exists? group-id team)
-    (do (db/add-to-team! group-id team user-id)
-        [message])
-    []))
+  ;; TODO: handle this correctly, i.e. also leave the user's
+  ;; current team
+  (cond (= team "undecided")
+        [message]
+        (db/team-exists? group-id team)
+        (do
+          (db/add-to-team! group-id team user-id)
+          [message])
+        :else []))
 
 (defn handle-message [group-id message]
   (handle-message* (assoc message :group-id group-id)))
