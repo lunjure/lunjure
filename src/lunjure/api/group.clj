@@ -85,11 +85,13 @@
     (on-closed user-channel (partial broadcast-message group-channel group-id user {:type :exit}))
     (send-history user-channel group-id)
     (broadcast-message group-channel group-id user {:type :enter})
-    (let [user-channel (map* (partial enrich-message user) user-channel)]
+    (let [user-channel (map* (comp (partial handle-message group-id)
+                                   (partial enrich-message user))
+                             user-channel)]
       (-> (fork user-channel)
           (receive-in-order (partial db/add-message! group-id)))
-      (-> (map* (comp pr-str handle-message) user-channel)
-          (siphon  group-channel)))))
+      (-> (map* pr-str user-channel)
+          (siphon group-channel)))))
 
 (defn user->string [user]
   (str (:first-name user) " " (:last-name user)))
