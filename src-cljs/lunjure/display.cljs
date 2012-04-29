@@ -85,7 +85,12 @@
       (text (:text obj))))
 
 (defmethod make-message-element :team [obj]
-  ;; TODO: Team zur Liste hinzufuegen
+  (add-team (:name obj))
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   (:name obj)
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -102,7 +107,6 @@
 ;;                (str (:user obj) " hat " (:name obj) " eingeladen.")))
 
 (defmethod make-message-element :time [obj]
-  ;; TODO: Zeit aktualisieren
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -112,14 +116,22 @@
                  "."))))
 
 (defmethod make-message-element :leave [obj]
-  ;; TODO: Aus Liste entfernen
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   "Undecided"
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
       (text (str (:user obj) " has left team " (:team obj) "."))))
 
 (defmethod make-message-element :join [obj]
-  ;; TODO: Zur Liste hinzufuegen
+  (display-in-team (:user obj)
+                   (:user-id obj)
+                   (:team obj)
+                   (:user-photo obj))
+
   (.. (jquery "<p>")
       (attr "class" "status")
       (attr "data-time" (format-time-string (:time-string obj)))
@@ -130,7 +142,7 @@
   (display-in-team (:user obj)
                    (:user-id obj)
                    "Undecided"
-                   (:photo-id obj))
+                   (:user-photo obj))
 
   (.. (jquery "<p>")
       (attr "class" "status")
