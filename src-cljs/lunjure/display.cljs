@@ -36,13 +36,16 @@
                                           "/images/avatar.png")))
                    (append (:user obj)))))))
 
-(defn- make-team [name & [foursquare-id]]
+(defn- make-team [name lunch-time]
+  (.log js/console (str "time: " lunch-time))
   (.. (jquery "<ul>")
       (addClass "team")
       (addClass (str "team-" (hash name)))
       (append (.. (jquery "<li>")
                   (addClass "team-name")
-                  (append (.text (jquery "<span>") name))
+                  (append (.. (jquery "<span>")
+                              (attr "data-lunchtime" lunch-time)
+                              (text name)))
                   (append (.addClass (jquery "<ul>") "users"))))))
 
 (defn- append-user [team-name user]
@@ -72,15 +75,9 @@
                                      :user-id user-id
                                      :user-photo photo-id})))
 
-(defn add-team [team-name]
+(defn add-team [team-name lunch-time]
   (.. (jquery "#text_pad .wrapper")
-      (append (make-team team-name))))
-
-(defn- test-tree []
-  (add-team "Foobar")
-  (doseq [n ["Foo" "bar" "Baz"]]
-    (append-user "Foobar" (make-user {:user n
-                                      :user-id "foobar4242"}))))
+      (append (make-team team-name lunch-time))))
 
 ;; (def- append-team [name]
 ;;   (.. (jquery "<ul>")
@@ -106,7 +103,7 @@
       (text (:text obj))))
 
 (defmethod make-message-element :team [obj]
-  (add-team (:name obj))
+  (add-team (:name obj) (:lunch-time obj))
   (display-in-team (:user obj)
                    (:user-id obj)
                    (:name obj)
@@ -187,4 +184,4 @@
       (text (str (:user obj) " has changed the group's geolocation."))))
 
 ;;; Add an "undecided" team
-(add-team "Undecided")
+(add-team "Undecided" "")

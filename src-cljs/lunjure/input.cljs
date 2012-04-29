@@ -44,10 +44,10 @@
   {:type :leave
    :text text})
 
-(defmethod handle-command "time" [[_ time] text]
-  {:type :time
-   :lunch-time time
-   :text text})
+;; (defmethod handle-command "time" [[_ time] text]
+;;   {:type :time
+;;    :lunch-time time
+;;    :text text})
 
 ;; (defmethod handle-command "invite" [[_ name] text]
 ;;   {:type :invite
