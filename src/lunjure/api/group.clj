@@ -75,17 +75,24 @@
 (defmethod handle-message* :default [message]
   [message])
 
-(defmethod handle-message* :team [{:keys [name lunch-time location group-id] :as message}]
+(defmethod handle-message* :team [{:keys [name lunch-time location group-id user-id] :as message}]
   (let [time (parse-time lunch-time)
         message (assoc message :lunch-time time)]
-    (db/create-team! group-id (select-keys message [:name :lunch-time :location]))
-    [message]))
+    (if (:error (db/create-team! group-id (select-keys message [:name :lunch-time :location])))
+      []
+      (do (db/add-to-team! group-id name user-id)
+          [message]))))
 
 (defmethod handle-message* :join [{:keys [group-id team user-id] :as message}]
-  (if (db/team-exists? group-id team)
-    (do (db/add-to-team! group-id team user-id)
-        [message])
-    []))
+  ;; TODO: handle this correctly, i.e. also leave the user's
+  ;; current team
+  (cond (= team "undecided")
+        [message]
+        (db/team-exists? group-id team)
+        (do
+          (db/add-to-team! group-id team user-id)
+          [message])
+        :else []))
 
 (defn handle-message [group-id message]
   (handle-message* (assoc message :group-id group-id)))
