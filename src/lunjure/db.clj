@@ -18,9 +18,9 @@
 (defn- group-members-key [id] (str GROUPS_NS "." id "/members"))
 (defn- group-location-key [id] (str GROUPS_NS "." id "/location"))
 (defn- group-venues-key [id] (str GROUPS_NS "." id "/venues"))
-(defn- team-key [team-id] (str TEAMS_NS "/" team-id))
+(defn- team-key [group-id team-name] (str GROUPS_NS "." group-id ".teams/" team-name))
 (defn- teams-key [group-id] (str GROUPS_NS "." group-id "/teams"))
-(defn- team-members-key [team-id] (str TEAMS_NS "." team-id "/members"))
+(defn- team-members-key [group-id team-name] (str GROUPS_NS  "." group-id ".teams." team-name "/members"))
 (defn- user-key [id] (str USERS_NS "/" id))
 
 (defn store-foursquare-user!
@@ -102,31 +102,31 @@
 (defn create-team!
   "Creates a new team that belongs to the specified group."
   [group-id team]
-  (let [team-id (util/new-uuid)]
-    (redis/sadd db (teams-key group-id) team-id)
-    (redis/set db (team-key team-id) (pr-str team))
-    (assoc team :id team-id)))
+  (let [team-name (:name team)]
+    (redis/sadd db (teams-key group-id) team-name)
+    (redis/set db (team-key group-id team-name) (pr-str team))
+    team))
 
 (defn get-teams
   "Returns all teams of the given group."
   [group-id]
-  (let [team-ids (redis/smembers db (teams-key group-id))]
-    (map read-string (apply redis/mget db (map (partial team-key group-id) team-ids)))))
+  (let [team-names (redis/smembers db (teams-key group-id))]
+    (map read-string (apply redis/mget db (map (partial team-key group-id) team-names)))))
 
 (defn add-to-team!
   "Adds the user with the specified id to the given team."
-  [team-id user-id]
-  (redis/sadd db (team-members-key team-id) user-id))
+  [group-id team-name user-id]
+  (redis/sadd db (team-members-key group-id team-name) user-id))
 
 (defn remove-from-team!
   "Removes the specified user from the team with the given id."
-  [team-id user-id]
-  (redis/srem db (team-members-key team-id) user-id))
+  [group-id team-name user-id]
+  (redis/srem db (team-members-key group-id team-name) user-id))
 
 (defn get-team-members
   "Returns a list of all user ids of all members of the given team."
-  [team-id]
-  (redis/smembers db (team-members-key team-id)))
+  [group-id team-name]
+  (redis/smembers db (team-members-key group-id team-name)))
 
 (defn get-group-id-by-name [name]
   (redis/get db (group-key name)))
