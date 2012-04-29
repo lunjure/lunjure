@@ -50,7 +50,8 @@
 (defn enrich-message [user msg]
   (let [time (now)]
     (-> (if (map? msg) msg (read-cljs-string msg))
-        (assoc :user user
+        (assoc :user (str (:first-name user) " " (:last-name user))
+               :user-photo (:photo user)
                :time time
                :time-string
                (format-time time)))))
@@ -87,10 +88,8 @@
     (let [user-channel (map* (partial enrich-message user) user-channel)]
       (-> (fork user-channel)
           (receive-in-order (partial db/add-message! group-id)))
-      (receive-all user-channel (bound-fn* prn))
-      (let [ch (map* handle-message user-channel)]
-        (receive-all ch (bound-fn* prn))
-        (siphon (map* pr-str ch) group-channel)))))
+      (-> (map* (comp pr-str handle-message) user-channel)
+          (siphon  group-channel)))))
 
 (defn user->string [user]
   (str (:first-name user) " " (:last-name user)))
