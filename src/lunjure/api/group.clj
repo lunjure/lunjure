@@ -104,9 +104,6 @@
       (-> (map* pr-str user-channel)
           (siphon group-channel)))))
 
-(defn user->string [user]
-  (str (:first-name user) " " (:last-name user)))
-
 (defroutes group-routes
   (GET "/groups/:id/socket" [id :as req]
        (-> (get-group-channel id)
