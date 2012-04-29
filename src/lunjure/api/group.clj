@@ -99,6 +99,10 @@
       [(assoc message :team current-team)])
     []))
 
+(defmethod handle-message* :geolocation [{:keys [group-id] :as message}]
+  (db/set-group-location! group-id (select-keys message [:latitude :longitude]))
+  [message])
+
 (defn handle-message [group-id message]
   (handle-message* (assoc message :group-id group-id)))
 
