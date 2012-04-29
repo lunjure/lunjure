@@ -103,9 +103,10 @@
   "Creates a new team that belongs to the specified group."
   [group-id team]
   (let [team-name (:name team)]
-    (redis/sadd db (teams-key group-id) team-name)
-    (redis/set db (team-key group-id team-name) (pr-str team))
-    team))
+    (if-let [added? (= 1 (redis/sadd db (teams-key group-id) team-name))]
+      (do (redis/set db (team-key group-id team-name) (pr-str team))
+          team)
+      {:error (str "Team with name " team-name " already exists.")})))
 
 (defn get-teams
   "Returns all teams of the given group."
