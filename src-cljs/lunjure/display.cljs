@@ -16,17 +16,25 @@
 
 ;;; Team list (notepad)
 
+(defn sanitize-avatar-url [url]
+  (when (= -1 (.indexOf url "blank_"))
+    url))
+
 (defn- make-user [obj]
   (assert (:user-id obj))
   (assert (:user obj))
-  (.. (jquery "<li>")
-      (addClass "user")
-      (addClass (str "userId-" (:user-id obj)))
-      (append (.. (jquery "<div>")
-                  ;; TODO: Use foursquare avatar
-                  (append (.attr (jquery "<img>")
-                                "src" "/images/avatar.png"))
-                  (append (:user obj))))))
+
+  (let [photo-url (sanitize-avatar-url (:user-photo obj))]
+   (.. (jquery "<li>")
+       (addClass "user")
+       (addClass (when photo-url "avatar"))
+       (addClass (str "userId-" (:user-id obj)))
+       (append (.. (jquery "<div>")
+                   (append (.attr (jquery "<img>")
+                                  "src" (if photo-url
+                                          photo-url
+                                          "/images/avatar.png")))
+                   (append (:user obj)))))))
 
 (defn- make-team [name & [foursquare-id]]
   (.. (jquery "<ul>")
@@ -62,7 +70,7 @@
   (.remove (jquery (str ".userId-" user-id)))
   (append-user team-name (make-user {:user user
                                      :user-id user-id
-                                     :photo-id photo-id})))
+                                     :user-photo photo-id})))
 
 (defn add-team [team-name]
   (.. (jquery "#text_pad .wrapper")
