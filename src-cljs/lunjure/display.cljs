@@ -7,6 +7,49 @@
 
 (def output (jquery "#text_window .output"))
 
+(def emojis
+  {#{":-)" ":)"} "smile"
+   #{";-)" ";)"} "blink"
+   #{":-D" ":D"} "bigSmile"
+   #{";-P" ";P"} "blinkTongue"
+   #{":-P" ":P"} "tongue"
+   #{":-X" ":X"} "iDontGiveAFuck"
+   #{":-O" ":O"} "O"
+   #{":-(" ":("} "sad"
+   #{":love:" "&lt;3"} "love"
+   "+1" "plusOne"
+   "-1" "minusOne"
+   ":burger:" "burger"
+   ":cry:" "cry"
+   ":hehe:" "hehe"
+   ":ice:" "ice"
+   ":rain:" "rain"
+   ":sun:" "sun"
+   ":wtf:" "whatTheFuck"
+   ":zzz:" "zzz"})
+
+(defn emojify [text]
+  (let [text (.. (jquery "<div>")
+                 (text text)
+                 (get 0)
+                 -innerHTML)]
+    (reduce (fn [text [emoji-names emoji-img]]
+              (let [img (.. (jquery "<img>")
+                            (addClass "emoticon")
+                            (attr "src" (str "/images/emoticons/" emoji-img ".png"))
+                            (get 0)
+                            -outerHTML)]
+                (.log js/console (str "ho: " img))
+                (reduce (fn [text emoji]
+                          (.log js/console text)
+                          (.replace text emoji img))
+                        text
+                        (if (set? emoji-names)
+                          emoji-names
+                          [emoji-names]))))
+            text
+            emojis)))
+
 ;;; TODO
 ;; (defn format-time-string [time]
 ;;   (.log js/console time)
@@ -100,7 +143,7 @@
   (.. (jquery "<p>")
       (attr "data-username" (:user obj))
       (attr "data-time" (format-time-string (:time-string obj)))
-      (text (:text obj))))
+      (html (emojify (:text obj)))))
 
 (defmethod make-message-element :team [obj]
   (add-team (:name obj) (:lunch-time obj))
