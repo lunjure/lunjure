@@ -50,7 +50,8 @@
 (defn enrich-message [user msg]
   (let [time (now)]
     (-> (if (map? msg) msg (read-cljs-string msg))
-        (assoc :user user
+        (assoc :user (str (:first-name user) " " (:last-name user))
+               :user-photo (:photo user)
                :time time
                :time-string
                (format-time time)))))
